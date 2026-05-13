@@ -33,6 +33,17 @@ const MapModule = (() => {
       if (clickHandler) clickHandler(e.latlng);
     });
 
+    // ResizeObserver：容器尺寸变化时自动刷新地图
+    if (window.ResizeObserver) {
+      var container = document.getElementById(containerId) || map.getContainer();
+      if (container && container.parentElement) {
+        var ro = new ResizeObserver(function () {
+          if (map) setTimeout(function () { map.invalidateSize(); }, 50);
+        });
+        ro.observe(container.parentElement);
+      }
+    }
+
     return map;
   }
 

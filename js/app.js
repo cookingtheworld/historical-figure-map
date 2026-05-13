@@ -156,6 +156,12 @@
 
       console.log('历史人物地理志 v1.0 已加载');
       console.log('已加载 ' + figures.length + ' 个人物，' + Object.keys(locations).length + ' 个地点');
+
+      // 监听 Gist 云端数据同步事件，自动刷新界面
+      window.addEventListener('figures-gist-synced', function () {
+        console.log('Gist 数据已同步，刷新界面');
+        handleFigureChange(DataManager.getCurrentFigure() ? DataManager.getCurrentFigure().id : null);
+      });
     } catch (e) {
       console.error('应用初始化失败:', e);
       // 在页面上显示错误

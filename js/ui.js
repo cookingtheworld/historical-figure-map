@@ -29,6 +29,7 @@ const UIModule = (() => {
       populateProvinceOptions();
       initDynastyTags();
       initMobileDrawer();
+      initSyncButtonState();
       console.log('UIModule.init() 完成');
     } catch (e) {
       console.error('UIModule.init() 失败:', e);
@@ -275,7 +276,16 @@ const UIModule = (() => {
       confirmDialog: document.getElementById('confirmDialog'),
       confirmMessage: document.getElementById('confirmMessage'),
       confirmYesBtn: document.getElementById('confirmYesBtn'),
-      confirmNoBtn: document.getElementById('confirmNoBtn')
+      confirmNoBtn: document.getElementById('confirmNoBtn'),
+      // 同步设置
+      syncConfigBtn: document.getElementById('syncConfigBtn'),
+      syncModal: document.getElementById('syncModal'),
+      syncModalClose: document.getElementById('syncModalClose'),
+      syncTokenInput: document.getElementById('syncTokenInput'),
+      syncStatusArea: document.getElementById('syncStatusArea'),
+      syncSaveBtn: document.getElementById('syncSaveBtn'),
+      syncClearBtn: document.getElementById('syncClearBtn'),
+      syncCancelBtn: document.getElementById('syncCancelBtn')
     };
   }
 
@@ -372,6 +382,28 @@ const UIModule = (() => {
     els.dataExportBtn.addEventListener('click', handleExport);
     els.dataImportBtn.addEventListener('click', () => els.dataImportFile.click());
     els.dataImportFile.addEventListener('change', handleImport);
+
+    // 同步设置
+    if (els.syncConfigBtn) {
+      els.syncConfigBtn.addEventListener('click', showSyncModal);
+    }
+    if (els.syncModalClose) {
+      els.syncModalClose.addEventListener('click', closeSyncModal);
+    }
+    if (els.syncCancelBtn) {
+      els.syncCancelBtn.addEventListener('click', closeSyncModal);
+    }
+    if (els.syncSaveBtn) {
+      els.syncSaveBtn.addEventListener('click', handleSyncSave);
+    }
+    if (els.syncClearBtn) {
+      els.syncClearBtn.addEventListener('click', handleSyncClear);
+    }
+    if (els.syncModal) {
+      els.syncModal.addEventListener('click', function (e) {
+        if (e.target === els.syncModal) closeSyncModal();
+      });
+    }
 
     // 确认对话框
     els.confirmNoBtn.addEventListener('click', closeConfirmDialog);
@@ -1662,6 +1694,93 @@ const UIModule = (() => {
       showToast('导入失败：' + err.message);
     }
     e.target.value = '';
+  }
+
+  // ============================================
+  // 云端同步设置
+  // ============================================
+  function showSyncModal() {
+    if (typeof GistSync === 'undefined') {
+      showToast('GistSync 模块未加载');
+      return;
+    }
+    // 填充当前 Token
+    els.syncTokenInput.value = GistSync.getToken() || '';
+    els.syncStatusArea.innerHTML = '';
+    els.syncModal.classList.add('show');
+
+    // 如果已配置，显示状态
+    if (GistSync.isConfigured()) {
+      var gistId = GistSync.getGistId();
+      var statusText = '✅ 已配置同步';
+      if (gistId) {
+        statusText += '<br><span style="font-size:0.75rem;color:#8C7A6A;">Gist ID: ' + gistId + '</span>';
+      } else {
+        statusText += '<br><span style="font-size:0.75rem;color:#8C7A6A;">尚未创建 Gist，首次保存时将自动创建</span>';
+      }
+      els.syncStatusArea.innerHTML = statusText;
+    }
+  }
+
+  function closeSyncModal() {
+    els.syncModal.classList.remove('show');
+  }
+
+  function handleSyncSave() {
+    var token = els.syncTokenInput.value.trim();
+    if (!token) {
+      els.syncStatusArea.innerHTML = '<span style="color:#8B0000;">请输入 Personal Access Token</span>';
+      return;
+    }
+
+    els.syncStatusArea.innerHTML = '<span style="color:#5C4033;">正在验证...</span>';
+
+    GistSync.validateToken(token).then(function (username) {
+      if (!username) {
+        els.syncStatusArea.innerHTML = '<span style="color:#8B0000;">❌ Token 无效，请检查后重试</span>';
+        return;
+      }
+
+      GistSync.setToken(token);
+
+      // 尝试将当前数据同步到 Gist
+      var data = DataManager.exportData();
+      return GistSync.saveToGist(data).then(function (ok) {
+        if (ok) {
+          els.syncStatusArea.innerHTML = '<span style="color:#2F4F4F;">✅ 验证成功！GitHub 用户: '
+            + username + '<br>数据已同步到云端。</span>';
+          showToast('同步已启用');
+        } else {
+          els.syncStatusArea.innerHTML = '<span style="color:#8B0000;">❌ 验证成功但创建 Gist 失败</span>';
+        }
+        // 更新同步按钮状态
+        updateSyncButtonState(true);
+      });
+    }).catch(function (err) {
+      els.syncStatusArea.innerHTML = '<span style="color:#8B0000;">❌ 验证失败: ' + err.message + '</span>';
+    });
+  }
+
+  function handleSyncClear() {
+    if (typeof GistSync === 'undefined') return;
+    GistSync.clearConfig();
+    els.syncTokenInput.value = '';
+    els.syncStatusArea.innerHTML = '<span style="color:#8C7A6A;">已清除同步配置，将仅使用本地存储。</span>';
+    updateSyncButtonState(false);
+    showToast('同步配置已清除');
+  }
+
+  function updateSyncButtonState(configured) {
+    if (els.syncConfigBtn) {
+      els.syncConfigBtn.textContent = configured ? '☁️ 已同步' : '☁️ 同步';
+    }
+  }
+
+  // 初始化同步按钮状态
+  function initSyncButtonState() {
+    if (typeof GistSync !== 'undefined' && els.syncConfigBtn) {
+      updateSyncButtonState(GistSync.isConfigured());
+    }
   }
 
   // ============================================

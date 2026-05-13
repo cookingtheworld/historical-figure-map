@@ -40,20 +40,57 @@ const DataManager = (() => {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         figures = JSON.parse(stored);
-        return;
+      } else {
+        figures = [];
       }
     } catch (e) {
       console.warn('LocalStorage 读取失败', e);
+      figures = [];
     }
-    figures = [];
+
+    // 如果配置了 Gist 同步，尝试从云端加载（异步）
+    if (typeof GistSync !== 'undefined' && GistSync.isConfigured()) {
+      loadFiguresFromGist();
+    }
+  }
+
+  // 从 Gist 加载（不阻塞初始化流程）
+  function loadFiguresFromGist() {
+    GistSync.fetchFromGist().then(function (data) {
+      if (data && data.figures && data.figures.length > 0) {
+        figures.length = 0;
+        data.figures.forEach(function (f) { figures.push(f); });
+        saveFiguresToLocal();
+        console.log('已从 Gist 同步 ' + figures.length + ' 个人物');
+        // 触发事件通知 UI 刷新
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('figures-gist-synced'));
+        }
+      } else if (data && data.figures && data.figures.length === 0) {
+        // Gist 有数据但为空数组，保留本地数据
+        console.log('Gist 数据为空，保留本地数据');
+      }
+    }).catch(function (err) {
+      console.warn('Gist 同步读取失败，使用本地数据:', err.message);
+    });
   }
 
   // 保存到 LocalStorage
-  function saveFigures() {
+  function saveFiguresToLocal() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(figures));
     } catch (e) {
       console.error('LocalStorage 写入失败', e);
+    }
+  }
+
+  // 保存（LocalStorage + Gist 异步同步）
+  function saveFigures() {
+    saveFiguresToLocal();
+    if (typeof GistSync !== 'undefined' && GistSync.isConfigured()) {
+      GistSync.saveToGist({ figures: figures }).catch(function (err) {
+        console.warn('Gist 同步写入失败:', err.message);
+      });
     }
   }
 

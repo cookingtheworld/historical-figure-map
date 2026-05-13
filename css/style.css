@@ -97,6 +97,10 @@ body::before {
   display: none;
 }
 
+.title-short {
+  display: none;
+}
+
 .navbar-controls {
   display: flex;
   align-items: center;
@@ -1103,9 +1107,20 @@ textarea.form-control {
     flex-shrink: 0;
   }
 
-  .navbar-brand h1 {
-    font-size: 1rem;
+  .navbar-brand {
+    min-width: 0;
+    overflow: hidden;
   }
+
+  .navbar-brand h1 {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .title-full { display: none; }
+  .title-short { display: inline; }
 
   .navbar-brand .subtitle {
     display: none;
@@ -1174,6 +1189,8 @@ textarea.form-control {
     flex: none;
     height: 45%;
     min-height: 200px;
+    overflow: hidden;
+    position: relative;
   }
 
   /* ---- 底部抽屉面板 ---- */
@@ -1311,13 +1328,20 @@ textarea.form-control {
     padding: 10px 30px 10px 12px;
   }
 
-  /* ---- 数据管理：紧凑 ---- */
+  /* ---- 数据管理：手机端静态置于抽屉底部 ---- */
   .data-mgmt {
-    bottom: 8px;
-    padding: 6px 12px;
+    position: static;
+    transform: none;
+    left: auto;
+    bottom: auto;
+    border-top: 1px solid #E0D5C5;
+    border-radius: 0;
+    background: #F5F0E8;
+    padding: 8px 12px;
     flex-wrap: wrap;
     justify-content: center;
-    z-index: 300;
+    gap: 6px;
+    flex-shrink: 0;
   }
 
   .data-mgmt .btn {

@@ -22,7 +22,7 @@
   <!-- 导航栏 -->
   <nav class="navbar">
     <div class="navbar-brand">
-      <h1>历史人物地理志</h1>
+      <h1><span class="title-full">历史人物地理志</span><span class="title-short">人物地理志</span></h1>
       <span class="subtitle">Chronicles &amp; Cartography</span>
     </div>
     <div class="navbar-controls">
@@ -126,6 +126,14 @@
       <div class="tab-content" id="tabWorks">
         <div id="worksContent" style="padding:0 16px;">
         </div>
+      </div>
+
+      <!-- 数据管理（位于侧面板底部，手机端在抽屉底部） -->
+      <div class="data-mgmt">
+        <button class="btn btn-sm" id="dataExportBtn">📥 导出数据</button>
+        <button class="btn btn-sm" id="dataImportBtn">📤 导入数据</button>
+        <input type="file" id="dataImportFile" accept=".json" style="display:none;">
+        <button class="btn btn-sm" id="syncConfigBtn">☁️ 同步</button>
       </div>
     </div>
   </div>
@@ -245,6 +253,31 @@
     </div>
   </div>
 
+  <!-- 同步设置弹窗 -->
+  <div class="modal-overlay" id="syncModal">
+    <div class="modal-content" style="width:480px;max-width:92vw;">
+      <button class="modal-close" id="syncModalClose">×</button>
+      <h3 id="syncModalTitle">云端同步设置</h3>
+      <div style="margin-bottom:14px;font-size:0.85rem;color:#5C4033;line-height:1.7;">
+        <p>使用 GitHub Gist 实现跨设备数据同步。</p>
+      </div>
+      <div class="form-group">
+        <label>GitHub Personal Access Token <span class="required">*</span></label>
+        <input type="password" class="form-control" id="syncTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+        <div style="font-size:0.75rem;color:#8C7A6A;margin-top:4px;">
+          需要 <strong>gist</strong> 权限。
+          <a href="https://github.com/settings/tokens/new?description=historical-figure-map&scopes=gist" target="_blank" style="color:#8B0000;">去创建 →</a>
+        </div>
+      </div>
+      <div id="syncStatusArea" style="font-size:0.82rem;color:#5C4033;margin-bottom:12px;"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="syncSaveBtn" style="flex:1;">验证并保存</button>
+        <button class="btn" id="syncClearBtn" style="flex-shrink:0;">清除配置</button>
+        <button class="btn" id="syncCancelBtn">取消</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 确认对话框 -->
   <div class="modal-overlay confirm-dialog" id="confirmDialog">
     <div class="modal-content">
@@ -256,13 +289,6 @@
     </div>
   </div>
 
-  <!-- 数据管理 -->
-  <div class="data-mgmt">
-    <button class="btn btn-sm" id="dataExportBtn">📥 导出数据</button>
-    <button class="btn btn-sm" id="dataImportBtn">📤 导入数据</button>
-    <input type="file" id="dataImportFile" accept=".json" style="display:none;">
-  </div>
-
   <!-- 脚本 -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
@@ -271,12 +297,13 @@
       document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"><\/script>');
     }
   </script>
-  <script src="data/locations.js?v=2"></script>
-  <script src="js/config.js?v=2"></script>
-  <script src="js/dataManager.js?v=2"></script>
-  <script src="js/map.js?v=2"></script>
-  <script src="js/ui.js?v=2"></script>
-  <script src="js/app.js?v=2"></script>
+  <script src="data/locations.js?v=3"></script>
+  <script src="js/config.js?v=3"></script>
+  <script src="js/gistSync.js?v=3"></script>
+  <script src="js/dataManager.js?v=3"></script>
+  <script src="js/map.js?v=3"></script>
+  <script src="js/ui.js?v=3"></script>
+  <script src="js/app.js?v=3"></script>
 
 </body>
 </html>
