@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>历史人物地理志</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Leaflet 加载检测（用于调试）
+    document.querySelector('link[href*="leaflet"][rel="stylesheet"]').onerror = function () {
+      console.warn('Leaflet CSS 加载失败，尝试备用 CDN');
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css';
+      document.head.appendChild(link);
+    };
+  </script>
+</head>
+<body>
+
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>历史人物地理志</h1>
+      <span class="subtitle">Chronicles &amp; Cartography</span>
+    </div>
+    <div class="navbar-controls">
+      <select id="figureSelect" aria-label="选择人物">
+        <option value="">— 选择人物 —</option>
+        <option value="__add__">+ 添加新人物</option>
+      </select>
+      <button class="btn btn-primary" id="addFigureBtn" onclick="window._addFigureClick && window._addFigureClick()">+ 添加</button>
+    </div>
+  </nav>
+
+  <!-- 主容器 -->
+  <div class="main-container">
+
+    <!-- 左侧人物列表 -->
+    <div class="figure-list-panel" id="figureListPanel">
+      <div class="figure-list-inner">
+        <div class="figure-list-header">
+          <h3>人物</h3>
+          <button class="btn btn-sm" id="toggleFigureListBtn" title="折叠/展开">◀</button>
+        </div>
+        <div class="figure-list-search">
+          <input type="text" id="figureListSearch" placeholder="搜索人物..." class="form-control">
+        </div>
+        <div class="figure-list-body" id="figureListBody">
+          <!-- 动态渲染 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 地图 -->
+    <div class="map-container">
+      <div id="map"></div>
+
+      <!-- 引导提示 -->
+      <div class="guide-overlay" id="guideOverlay">
+        <div class="guide-card">
+          <h2>历史人物地理志</h2>
+          <p>以地图为经纬，重走历史人物的人生轨迹。<br>
+          点击下方按钮，开始添加人物。</p>
+          <button class="btn btn-primary" onclick="document.getElementById('addFigureBtn').click()">
+            添加新人物
+          </button>
+        </div>
+      </div>
+
+      <!-- 编辑面板 -->
+      <div class="edit-panel hidden" id="editPanel">
+        <div class="edit-panel-header">
+          <h3>编辑轨迹</h3>
+          <button class="btn btn-sm" id="editPanelClose">× 退出</button>
+        </div>
+        <div class="edit-panel-body" id="editPanelBody">
+          <!-- 动态渲染 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧面板 -->
+    <div class="side-panel" id="sidePanel">
+
+      <!-- 人物信息 -->
+      <div id="figureInfoDisplay" class="figure-info-display" style="display:none;">
+        <!-- 动态渲染 -->
+      </div>
+
+      <!-- 添加/编辑人物表单 → 保留原位置但隐藏，JS仍引用 -->
+      <div id="figureFormSection" style="display:none;"></div>
+
+      <!-- 地点搜索 -->
+      <div class="panel-section" style="padding:10px 16px;">
+        <div class="search-box">
+          <input type="text" class="form-control" id="locationSearch" placeholder="搜索地点..." style="font-size:0.8rem;">
+          <div class="search-results" id="searchResults"></div>
+        </div>
+      </div>
+
+      <!-- 标签页：时间线 / 著作索引 -->
+      <div class="tabs">
+        <button class="tab-btn active" id="tabTimelineBtn">时间线</button>
+        <button class="tab-btn" id="tabWorksBtn">著作</button>
+      </div>
+
+      <div class="tab-content active" id="tabTimeline">
+        <div id="timelineContent" style="padding:0 16px;">
+          <div style="padding:12px;color:#8C7A6A;text-align:center;">请选择或添加人物</div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tabWorks">
+        <div id="worksContent" style="padding:0 16px;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 人物表单弹窗 -->
+  <div class="modal-overlay" id="figureModal">
+    <div class="modal-content" style="width:520px;max-width:92vw;">
+      <button class="modal-close" id="figureModalClose">×</button>
+      <h3 id="formTitle">添加新人物</h3>
+      <form id="figureForm">
+        <div class="form-group">
+          <label for="formName">姓名 <span class="required">*</span></label>
+          <input type="text" class="form-control" id="formName" placeholder="如：曾国藩" required>
+        </div>
+        <div class="form-group">
+          <label>朝代（可多选）</label>
+          <div id="dynastyTagContainer" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;"></div>
+          <div style="display:flex;gap:4px;">
+            <input type="text" class="form-control" id="formDynastyCustom" placeholder="输入其他朝代..." style="flex:1;">
+            <button type="button" class="btn btn-sm" id="dynastyCustomAddBtn">添加</button>
+          </div>
+          <div id="dynastySelectedTags" style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;"></div>
+          <input type="hidden" id="formDynasty" value="">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="formBirthYear">生年</label>
+            <input type="number" class="form-control" id="formBirthYear" placeholder="如 1811" min="1760" max="2025">
+          </div>
+          <div class="form-group">
+            <label for="formDeathYear">卒年</label>
+            <input type="number" class="form-control" id="formDeathYear" placeholder="如 1872" min="1760" max="2025">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="formOriginProvince">籍贯·省</label>
+          <select class="form-control" id="formOriginProvince">
+            <option value="">— 选择省 —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="formOriginCounty">籍贯·县</label>
+          <select class="form-control" id="formOriginCounty">
+            <option value="">先选择省</option>
+          </select>
+        </div>
+        <div id="formOriginManualGroup" style="display:none;">
+          <div class="form-group">
+            <label for="formOriginManualName">县名（手动）</label>
+            <input type="text" class="form-control" id="formOriginManualName" placeholder="如：大兴县">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="formOriginManualLat">纬度</label>
+              <input type="number" step="0.01" class="form-control" id="formOriginManualLat" placeholder="如 27.73">
+            </div>
+            <div class="form-group">
+              <label for="formOriginManualLng">经度</label>
+              <input type="number" step="0.01" class="form-control" id="formOriginManualLng" placeholder="如 112.18">
+            </div>
+          </div>
+        </div>
+        <div class="error-message" id="formError"></div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button type="submit" class="btn btn-primary" id="formSubmitBtn" style="flex:1;" onclick="window._saveFigureClick(event)">保存</button>
+          <button type="button" class="btn" id="formCancelBtn">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 事件表单弹窗 -->
+  <div class="modal-overlay" id="eventModal">
+    <div class="modal-content">
+      <button class="modal-close" id="eventCancelBtn">×</button>
+      <h3>添加事件</h3>
+      <form id="eventForm">
+        <div class="form-group">
+          <label>地点</label>
+          <div id="eventLocationDisplay" style="font-weight:700;color:#5C4033;"></div>
+        </div>
+        <div class="form-group">
+          <label>年份 <span class="required">*</span></label>
+          <input type="number" class="form-control" id="eventYear" placeholder="如 1838" required>
+        </div>
+        <div class="form-group">
+          <label>事件类型</label>
+          <select class="form-control" id="eventType">
+            <option value="科举">科举</option>
+            <option value="任职">任职</option>
+            <option value="贬谪">贬谪</option>
+            <option value="游历">游历</option>
+            <option value="战役">战役</option>
+            <option value="著作">著作</option>
+            <option value="生活">生活</option>
+            <option value="教育">教育</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>事件标题 <span class="required">*</span></label>
+          <input type="text" class="form-control" id="eventTitle" placeholder="如：进士及第">
+        </div>
+        <div class="form-group">
+          <label>事件详情</label>
+          <textarea class="form-control" id="eventDetail" rows="3" placeholder="详细描述…"></textarea>
+        </div>
+        <div class="form-group">
+          <label>相关著作（每行一个）</label>
+          <textarea class="form-control" id="eventWorks" rows="2" placeholder="如：讨粤匪檄"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button type="submit" class="btn btn-primary" id="eventSaveBtn" style="flex:1;">保存事件</button>
+          <button type="button" class="btn" id="eventCancelBtn2" onclick="document.getElementById('eventCancelBtn').click()">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 确认对话框 -->
+  <div class="modal-overlay confirm-dialog" id="confirmDialog">
+    <div class="modal-content">
+      <p id="confirmMessage" style="font-size:0.95rem;color:#3C2415;margin-bottom:16px;"></p>
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="confirmYesBtn">确定</button>
+        <button class="btn btn-cancel" id="confirmNoBtn">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 数据管理 -->
+  <div class="data-mgmt">
+    <button class="btn btn-sm" id="dataExportBtn">📥 导出数据</button>
+    <button class="btn btn-sm" id="dataImportBtn">📤 导入数据</button>
+    <input type="file" id="dataImportFile" accept=".json" style="display:none;">
+  </div>
+
+  <!-- 脚本 -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Leaflet JS 加载失败时使用备用 CDN
+    if (typeof L === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"><\/script>');
+    }
+  </script>
+  <script src="data/locations.js?v=2"></script>
+  <script src="js/config.js?v=2"></script>
+  <script src="js/dataManager.js?v=2"></script>
+  <script src="js/map.js?v=2"></script>
+  <script src="js/ui.js?v=2"></script>
+  <script src="js/app.js?v=2"></script>
+
+</body>
+</html>

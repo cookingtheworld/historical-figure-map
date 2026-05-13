@@ -1,0 +1,1155 @@
+/* ============================================
+   历史人物地理志 - 学术历史风格样式
+   ============================================ */
+
+/* 基础重置与字体 */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Georgia', '宋体', 'Songti SC', 'SimSun', serif;
+  background-color: #F5F0E8;
+  color: #3C2415;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* 羊皮纸纹理背景 */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(245, 235, 220, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(230, 220, 200, 0.3) 0%, transparent 50%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(139, 90, 43, 0.015) 2px,
+      rgba(139, 90, 43, 0.015) 4px
+    );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #EDE5D8;
+}
+::-webkit-scrollbar-thumb {
+  background: #B8A898;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8C7A6A;
+}
+
+/* ============================================
+   导航栏
+   ============================================ */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: linear-gradient(180deg, #EDE5D8 0%, #E0D5C5 100%);
+  border-bottom: 2px solid #C8B8A0;
+  box-shadow: 0 2px 8px rgba(60, 36, 21, 0.08);
+  height: 64px;
+  z-index: 1000;
+  position: relative;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-brand h1 {
+  font-family: 'Georgia', '宋体', 'Songti SC', 'SimSun', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #5C4033;
+  letter-spacing: 0.08em;
+}
+
+.navbar-brand .subtitle {
+  font-size: 0.75rem;
+  color: #8C7A6A;
+  font-style: italic;
+  display: none;
+}
+
+.navbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-controls select {
+  padding: 6px 32px 6px 12px;
+  border: 1px solid #C8B8A0;
+  border-radius: 4px;
+  background: #F5F0E8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235C4033'/%3E%3C/svg%3E") no-repeat right 10px center;
+  font-family: 'Georgia', '宋体', 'Songti SC', 'SimSun', serif;
+  font-size: 0.9rem;
+  color: #3C2415;
+  cursor: pointer;
+  appearance: none;
+  min-width: 120px;
+}
+
+.navbar-controls select:focus {
+  outline: none;
+  border-color: #8B0000;
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.15);
+}
+
+/* ============================================
+   按钮样式
+   ============================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: 1px solid #C8B8A0;
+  border-radius: 4px;
+  background: #F5F0E8;
+  color: #5C4033;
+  font-family: 'Georgia', '宋体', 'Songti SC', 'SimSun', serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  background: #EDE5D8;
+  border-color: #B8A898;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  background: #5C4033;
+  border-color: #5C4033;
+  color: #F5F0E8;
+}
+
+.btn-primary:hover {
+  background: #4A3328;
+  border-color: #4A3328;
+}
+
+.btn-danger {
+  border-color: #8B0000;
+  color: #8B0000;
+}
+
+.btn-danger:hover {
+  background: #8B0000;
+  color: #F5F0E8;
+}
+
+.btn-sm {
+  padding: 4px 12px;
+  font-size: 0.8rem;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+/* ============================================
+   主布局
+   ============================================ */
+.main-container {
+  display: flex;
+  height: calc(100vh - 64px);
+  position: relative;
+}
+
+.map-container {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  background: #EDE5D8;
+}
+
+/* ============================================
+   侧边面板
+   ============================================ */
+.side-panel {
+  width: 360px;
+  min-width: 360px;
+  background: #F5F0E8;
+  border-left: 2px solid #C8B8A0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid #E0D5C5;
+}
+
+.panel-section:last-child {
+  border-bottom: none;
+}
+
+.panel-section h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #5C4033;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #D8CABC;
+  text-transform: uppercase;
+  font-family: 'Georgia', sans-serif;
+}
+
+/* ============================================
+   人物信息显示
+   ============================================ */
+.figure-info-display {
+  font-size: 0.9rem;
+}
+
+.figure-info-display .info-row {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+.figure-info-display .info-label {
+  color: #8C7A6A;
+  width: 60px;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+}
+
+.figure-info-display .info-value {
+  color: #3C2415;
+  flex: 1;
+}
+
+/* ============================================
+   时间线
+   ============================================ */
+.timeline-list {
+  list-style: none;
+}
+
+.timeline-item {
+  position: relative;
+  padding: 8px 0 8px 20px;
+  border-left: 2px solid #C8B8A0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8B0000;
+  border: 1px solid #C8B8A0;
+}
+
+.timeline-item:hover {
+  background: rgba(200, 184, 160, 0.2);
+}
+
+.timeline-item .tl-year {
+  font-weight: 700;
+  color: #5C4033;
+  font-size: 0.85rem;
+}
+
+.timeline-item .tl-type {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-size: 0.7rem;
+  background: #EDE5D8;
+  color: #5C4033;
+  margin: 0 4px;
+}
+
+.timeline-item .tl-title {
+  color: #3C2415;
+  font-size: 0.85rem;
+}
+
+.timeline-item .tl-place {
+  font-size: 0.78rem;
+  color: #8C7A6A;
+  font-style: italic;
+}
+
+/* ============================================
+   著作索引
+   ============================================ */
+.works-list {
+  list-style: none;
+}
+
+.works-item {
+  padding: 6px 0;
+  border-bottom: 1px dotted #E0D5C5;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.works-item:hover {
+  background: rgba(200, 184, 160, 0.15);
+}
+
+.works-item .w-title {
+  font-weight: 700;
+  color: #2F4F4F;
+  font-size: 0.9rem;
+}
+
+.works-item .w-meta {
+  font-size: 0.78rem;
+  color: #8C7A6A;
+}
+
+/* ============================================
+   标签页
+   ============================================ */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #C8B8A0;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #8C7A6A;
+  font-family: 'Georgia', '宋体', 'Songti SC', 'SimSun', serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tab-btn.active {
+  color: #5C4033;
+  border-bottom-color: #5C4033;
+  font-weight: 700;
+}
+
+.tab-content {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ============================================
+   表单样式
+   ============================================ */
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  color: #5C4033;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.form-group label .required {
+  color: #8B0000;
+  margin-left: 2px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #C8B8A0;
+  border-radius: 4px;
+  background: #FAF6F0;
+  color: #3C2415;
+  font-family: 'Georgia', '宋体', 'Songti SC', 'SimSun', serif;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #8B0000;
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.1);
+}
+
+.form-control.error {
+  border-color: #8B0000;
+}
+
+.error-message {
+  color: #8B0000;
+  font-size: 0.75rem;
+  margin-top: 2px;
+  display: none;
+}
+
+.error-message.show {
+  display: block;
+}
+
+select.form-control {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235C4033'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+/* ============================================
+   编辑面板
+   ============================================ */
+.edit-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 380px;
+  height: 100%;
+  background: #F5F0E8;
+  border-left: 2px solid #C8B8A0;
+  box-shadow: -4px 0 12px rgba(60, 36, 21, 0.1);
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+}
+
+.edit-panel.hidden {
+  transform: translateX(100%);
+}
+
+.edit-panel-header {
+  padding: 16px 20px;
+  background: linear-gradient(180deg, #EDE5D8 0%, #E0D5C5 100%);
+  border-bottom: 1px solid #C8B8A0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.edit-panel-header h3 {
+  font-size: 1rem;
+  color: #5C4033;
+}
+
+.edit-panel-body {
+  padding: 16px 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* 地点列表 */
+.location-list {
+  list-style: none;
+}
+
+.location-item {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border: 1px solid #D8CABC;
+  border-radius: 4px;
+  background: #FAF6F0;
+  position: relative;
+}
+
+.location-item .loc-name {
+  font-weight: 700;
+  color: #5C4033;
+  font-size: 0.9rem;
+}
+
+.location-item .loc-coords {
+  font-size: 0.75rem;
+  color: #8C7A6A;
+}
+
+.location-item .loc-events {
+  margin-top: 6px;
+}
+
+.location-item .loc-event {
+  padding: 4px 0;
+  font-size: 0.8rem;
+  border-bottom: 1px dotted #E0D5C5;
+}
+
+.location-item .loc-event:last-child {
+  border-bottom: none;
+}
+
+.location-item .loc-del {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  cursor: pointer;
+  color: #8C7A6A;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.location-item .loc-del:hover {
+  background: #8B0000;
+  color: #F5F0E8;
+}
+
+/* ============================================
+   事件表单弹窗
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(60, 36, 21, 0.4);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-content {
+  background: #F5F0E8;
+  border: 1px solid #C8B8A0;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(60, 36, 21, 0.2);
+  width: 480px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 24px;
+  position: relative;
+}
+
+.modal-content h3 {
+  font-size: 1.1rem;
+  color: #5C4033;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #D8CABC;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 1.2rem;
+  color: #8C7A6A;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: Georgia, serif;
+}
+
+.modal-close:hover {
+  color: #8B0000;
+}
+
+/* ============================================
+   搜索框
+   ============================================ */
+.search-box {
+  position: relative;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #FAF6F0;
+  border: 1px solid #C8B8A0;
+  border-top: none;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+}
+
+.search-results.show {
+  display: block;
+}
+
+.search-result-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #EDE5D8;
+}
+
+.search-result-item:hover {
+  background: #EDE5D8;
+}
+
+.search-result-item .sr-province {
+  color: #8C7A6A;
+  font-size: 0.75rem;
+}
+
+/* ============================================
+   地图弹窗覆盖
+   ============================================ */
+.leaflet-popup-content-wrapper {
+  background: #F5F0E8 !important;
+  border: 1px solid #C8B8A0 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 16px rgba(60, 36, 21, 0.15) !important;
+  font-family: 'Georgia', '宋体', 'Songti SC', 'SimSun', serif !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px !important;
+  font-size: 0.85rem !important;
+  color: #3C2415 !important;
+  line-height: 1.5 !important;
+}
+
+.leaflet-popup-tip {
+  border: 1px solid #C8B8A0 !important;
+  background: #F5F0E8 !important;
+}
+
+.leaflet-popup-close-button {
+  color: #8C7A6A !important;
+}
+
+/* ============================================
+   地图标记样式
+   ============================================ */
+.custom-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid #C8A86A;
+  font-size: 11px;
+  font-weight: 700;
+  color: #F5F0E8;
+  box-shadow: 0 2px 6px rgba(60, 36, 21, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.custom-marker:hover {
+  transform: scale(1.15);
+  z-index: 1000 !important;
+}
+
+.custom-marker.origin {
+  background: #2F4F4F;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  border-width: 2px;
+}
+
+.custom-marker.trajectory {
+  background: #8B0000;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  border-width: 2px;
+  font-size: 10px;
+}
+
+/* ============================================
+   引导提示
+   ============================================ */
+.guide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(245, 240, 232, 0.85);
+  z-index: 400;
+  pointer-events: none;
+}
+
+.guide-overlay.show {
+  display: flex;
+}
+
+.guide-card {
+  background: #FAF6F0;
+  border: 1px solid #C8B8A0;
+  border-radius: 6px;
+  padding: 32px 40px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(60, 36, 21, 0.15);
+  pointer-events: auto;
+  max-width: 400px;
+}
+
+.guide-card h2 {
+  font-size: 1.2rem;
+  color: #5C4033;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.guide-card p {
+  color: #8C7A6A;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+/* ============================================
+   数据管理
+   ============================================ */
+.data-mgmt {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  background: rgba(245, 240, 232, 0.95);
+  border: 1px solid #C8B8A0;
+  border-radius: 8px;
+  padding: 8px 16px;
+  box-shadow: 0 4px 16px rgba(60, 36, 21, 0.12);
+  z-index: 300;
+}
+
+.data-mgmt .btn {
+  font-size: 0.78rem;
+  padding: 6px 14px;
+}
+
+/* 确认对话框 */
+.confirm-dialog .modal-content {
+  width: 360px;
+  text-align: center;
+}
+
+.confirm-dialog .modal-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.btn-cancel {
+  background: #EDE5D8;
+  border-color: #C8B8A0;
+  color: #5C4033;
+}
+
+/* ============================================
+   提示消息
+   ============================================ */
+.toast {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: #5C4033;
+  color: #F5F0E8;
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: 'Georgia', '宋体', 'Songti SC', 'SimSun', serif;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 3000;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================
+   事件类型标签颜色
+   ============================================ */
+.type-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 2px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.type-科举 { background: #2F4F4F; color: #F5F0E8; }
+.type-任职 { background: #5C4033; color: #F5F0E8; }
+.type-贬谪 { background: #8B0000; color: #F5F0E8; }
+.type-游历 { background: #4A7C59; color: #F5F0E8; }
+.type-战役 { background: #A0522D; color: #F5F0E8; }
+.type-著作 { background: #8B6914; color: #F5F0E8; }
+.type-生活 { background: #6B5B4F; color: #F5F0E8; }
+.type-教育 { background: #3D5A80; color: #F5F0E8; }
+.type-其他 { background: #8C7A6A; color: #F5F0E8; }
+
+/* ============================================
+   朝代多选标签
+   ============================================ */
+.tag-btn {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 1px solid #C8B8A0;
+  border-radius: 4px;
+  background: #FAF6F0;
+  color: #5C4033;
+  font-family: 'Georgia', '宋体', 'Songti SC', 'SimSun', serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.tag-btn:hover {
+  background: #EDE5D8;
+  border-color: #B8A898;
+}
+.tag-btn.active {
+  background: #5C4033;
+  color: #F5F0E8;
+  border-color: #5C4033;
+}
+.selected-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  background: #5C4033;
+  color: #F5F0E8;
+  border-radius: 3px;
+  font-family: 'Georgia', '宋体', 'Songti SC', 'SimSun', serif;
+  font-size: 0.8rem;
+}
+.tag-remove {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1;
+  margin-left: 2px;
+}
+.tag-remove:hover {
+  color: #FFD700;
+}
+
+/* ============================================
+   左侧人物列表面板
+   ============================================ */
+.figure-list-panel {
+  width: 180px;
+  min-width: 180px;
+  background: #F5F0E8;
+  border-right: 2px solid #C8B8A0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: width 0.25s ease, min-width 0.25s ease;
+  overflow: hidden;
+}
+
+.figure-list-panel.collapsed {
+  width: 20px;
+  min-width: 20px;
+  cursor: pointer;
+  background: #EDE5D8;
+}
+
+.figure-list-panel.collapsed .figure-list-inner {
+  display: none;
+}
+
+/* 折叠时显示展开指示器 */
+.figure-list-panel.collapsed::after {
+  content: '▶';
+  position: absolute;
+  top: 12px;
+  left: 5px;
+  font-size: 10px;
+  color: #5C4033;
+  pointer-events: none;
+}
+
+.figure-list-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 180px;
+}
+
+.figure-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #D8CABC;
+  flex-shrink: 0;
+}
+
+.figure-list-header h3 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #5C4033;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.figure-list-header .btn {
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.figure-list-search {
+  padding: 6px 12px;
+  border-bottom: 1px solid #E0D5C5;
+  flex-shrink: 0;
+}
+
+.figure-list-search .form-control {
+  font-size: 0.78rem;
+  padding: 4px 8px;
+}
+
+.figure-list-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0;
+}
+
+/* 朝代分组标题 */
+.fig-group-header {
+  padding: 6px 12px 2px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #8C7A6A;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: 1px dotted #E0D5C5;
+  margin-top: 4px;
+}
+
+.fig-group-header:first-child {
+  margin-top: 0;
+}
+
+/* 人物条目 */
+.fig-item {
+  padding: 5px 12px 5px 16px;
+  font-size: 0.85rem;
+  color: #3C2415;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fig-item:hover {
+  background: #EDE5D8;
+}
+
+.fig-item.active {
+  background: #E0D5C5;
+  color: #5C4033;
+  font-weight: 700;
+  border-left: 3px solid #8B0000;
+  padding-left: 13px;
+}
+
+.fig-item .fig-dynasty-tag {
+  font-size: 0.62rem;
+  color: #8C7A6A;
+  background: #EDE5D8;
+  padding: 0 5px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.fig-item .fig-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 列表为空 */
+.fig-list-empty {
+  padding: 16px 12px;
+  color: #8C7A6A;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+/* 搜索无结果提示 */
+.fig-search-no-result {
+  padding: 24px 12px;
+  color: #8C7A6A;
+  font-size: 0.78rem;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ============================================
+   移动端适配补充
+   ============================================ */
+@media (max-width: 768px) {
+  body {
+    overflow: hidden;
+  }
+
+  .navbar {
+    padding: 8px 12px;
+    height: 56px;
+  }
+
+  .navbar-brand h1 {
+    font-size: 1.05rem;
+  }
+
+  .main-container {
+    height: calc(100vh - 56px);
+    flex-direction: column;
+  }
+
+  .figure-list-panel {
+    width: 0 !important;
+    min-width: 0 !important;
+    border-right: none;
+  }
+
+  .figure-list-panel::after {
+    display: none !important;
+  }
+
+  .map-container {
+    flex: 1;
+    height: 50%;
+  }
+
+  .side-panel {
+    width: 100%;
+    min-width: unset;
+    height: 50%;
+    border-left: none;
+    border-top: 2px solid #C8B8A0;
+  }
+
+  .edit-panel {
+    width: 100%;
+    height: 60%;
+    bottom: 0;
+    top: auto;
+    border-left: none;
+    border-top: 2px solid #C8B8A0;
+    transform: translateY(0);
+  }
+
+  .edit-panel.hidden {
+    transform: translateY(100%);
+  }
+
+  .modal-content {
+    max-width: 95vw;
+    padding: 16px;
+  }
+
+  .form-control {
+    font-size: 16px;
+  }
+
+  .data-mgmt {
+    bottom: 8px;
+    padding: 6px 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .data-mgmt .btn {
+    font-size: 0.72rem;
+    padding: 4px 10px;
+  }
+}
