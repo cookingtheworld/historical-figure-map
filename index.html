@@ -34,6 +34,12 @@
     </div>
   </nav>
 
+  <!-- 移动端搜索栏（桌面端隐藏） -->
+  <div class="mobile-search-bar" id="mobileSearchBar">
+    <input type="text" class="form-control" id="mobileLocationSearch" placeholder="搜索地点...">
+    <div class="search-results" id="mobileSearchResults"></div>
+  </div>
+
   <!-- 主容器 -->
   <div class="main-container">
 
@@ -83,6 +89,11 @@
 
     <!-- 右侧面板 -->
     <div class="side-panel" id="sidePanel">
+
+      <!-- 移动端抽屉拖动条 -->
+      <div class="drawer-handle" id="drawerHandle">
+        <div class="drawer-handle-bar"></div>
+      </div>
 
       <!-- 人物信息 -->
       <div id="figureInfoDisplay" class="figure-info-display" style="display:none;">

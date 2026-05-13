@@ -1076,25 +1076,89 @@ textarea.form-control {
 /* ============================================
    移动端适配补充
    ============================================ */
+/* ============================================
+   移动端搜索栏（默认隐藏，移动端显示）
+   ============================================ */
+.mobile-search-bar {
+  display: none;
+}
+
+/* 抽屉拖动条（桌面端隐藏） */
+.drawer-handle {
+  display: none;
+}
+
 @media (max-width: 768px) {
   body {
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
   }
 
+  /* ---- 导航栏 ---- */
   .navbar {
-    padding: 8px 12px;
-    height: 56px;
+    padding: 6px 10px;
+    min-height: 44px;
+    flex-shrink: 0;
   }
 
   .navbar-brand h1 {
-    font-size: 1.05rem;
+    font-size: 1rem;
   }
 
+  .navbar-brand .subtitle {
+    display: none;
+  }
+
+  .navbar-controls select {
+    font-size: 0.8rem;
+    padding: 6px 28px 6px 8px;
+    min-width: 100px;
+  }
+
+  .navbar .btn {
+    min-height: 36px;
+    font-size: 0.8rem;
+  }
+
+  /* ---- 移动端搜索栏 ---- */
+  .mobile-search-bar {
+    display: block;
+    position: relative;
+    padding: 6px 12px;
+    background: #EDE5D8;
+    border-bottom: 1px solid #C8B8A0;
+    flex-shrink: 0;
+    z-index: 600;
+  }
+
+  .mobile-search-bar .search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 700;
+    box-shadow: 0 4px 12px rgba(60, 36, 21, 0.15);
+  }
+
+  .mobile-search-bar .form-control {
+    font-size: 0.85rem;
+    padding: 8px 10px;
+    min-height: 36px;
+    border-radius: 4px;
+  }
+
+  /* ---- 主容器：flex 填充剩余高度 ---- */
   .main-container {
-    height: calc(100vh - 56px);
+    flex: 1;
+    height: auto;
     flex-direction: column;
+    position: relative;
+    min-height: 0;
   }
 
+  /* ---- 左侧人物列表：手机隐藏 ---- */
   .figure-list-panel {
     width: 0 !important;
     min-width: 0 !important;
@@ -1105,22 +1169,85 @@ textarea.form-control {
     display: none !important;
   }
 
+  /* ---- 地图容器 ---- */
   .map-container {
-    flex: 1;
-    height: 50%;
+    flex: none;
+    height: 45%;
+    min-height: 200px;
   }
 
+  /* ---- 底部抽屉面板 ---- */
   .side-panel {
     width: 100%;
     min-width: unset;
-    height: 50%;
+    height: 55%;
     border-left: none;
     border-top: 2px solid #C8B8A0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: height 0.3s ease;
+    overflow: hidden;
   }
 
+  /* 抽屉拖动条（移动端显示） */
+  .drawer-handle {
+    display: flex;
+  }
+
+  /* 抽屉拖动条 */
+  .drawer-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 0;
+    cursor: grab;
+    flex-shrink: 0;
+    background: #F5F0E8;
+    border-bottom: 1px solid #E0D5C5;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .drawer-handle:active {
+    cursor: grabbing;
+  }
+
+  .drawer-handle-bar {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: #C8B8A0;
+  }
+
+  /* 抽屉展开状态 */
+  .side-panel.drawer-expanded {
+    height: 85%;
+  }
+
+  /* 手机端侧面板内容滚动 */
+  .side-panel .figure-info-display,
+  .side-panel .panel-section,
+  .side-panel .tabs,
+  .side-panel .tab-content {
+    flex-shrink: 0;
+  }
+
+  #timelineContent,
+  #worksContent {
+    max-height: none;
+  }
+
+  /* ---- 右侧面板内移动端隐藏桌面搜索框 ---- */
+  .side-panel .search-box {
+    display: none;
+  }
+
+  /* ---- 编辑面板：手机端底部全宽 ---- */
   .edit-panel {
     width: 100%;
-    height: 60%;
+    height: 65%;
+    min-height: 250px;
     bottom: 0;
     top: auto;
     border-left: none;
@@ -1132,24 +1259,89 @@ textarea.form-control {
     transform: translateY(100%);
   }
 
-  .modal-content {
-    max-width: 95vw;
-    padding: 16px;
+  /* ---- 弹窗表单：手机全屏 ---- */
+  .modal-overlay.show {
+    align-items: flex-end;
   }
 
+  .modal-content {
+    width: 100%;
+    max-width: 100vw;
+    max-height: 92vh;
+    border-radius: 12px 12px 0 0;
+    padding: 20px 16px 24px;
+    margin: 0;
+  }
+
+  .modal-content h3 {
+    font-size: 1rem;
+  }
+
+  /* 全屏弹窗特殊处理（添加人物、编辑人物） */
+  #figureModal .modal-content {
+    max-height: 94vh;
+  }
+
+  /* ---- 按钮：手机端大点击区域 ---- */
+  .btn {
+    min-height: 44px;
+    padding: 10px 18px;
+    font-size: 0.9rem;
+  }
+
+  .btn-sm {
+    min-height: 36px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+  }
+
+  /* 添加轨迹地点按钮特指 */
+  #addTrackBtn {
+    min-height: 44px;
+    font-size: 0.9rem;
+  }
+
+  /* ---- 表单控件：大触摸区域 ---- */
   .form-control {
     font-size: 16px;
+    padding: 10px 12px;
   }
 
+  select.form-control {
+    padding: 10px 30px 10px 12px;
+  }
+
+  /* ---- 数据管理：紧凑 ---- */
   .data-mgmt {
     bottom: 8px;
     padding: 6px 12px;
     flex-wrap: wrap;
     justify-content: center;
+    z-index: 300;
   }
 
   .data-mgmt .btn {
     font-size: 0.72rem;
-    padding: 4px 10px;
+    padding: 6px 10px;
+    min-height: 32px;
+  }
+
+  /* ---- 底部安全区适配 ---- */
+  .side-panel .tab-content {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  /* 标签页内容区域可滚动 */
+  .tab-content.active {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* ---- Toast 提示位置微调 ---- */
+  .toast {
+    top: 60px;
   }
 }

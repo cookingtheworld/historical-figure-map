@@ -28,6 +28,7 @@ const UIModule = (() => {
       bindEvents();
       populateProvinceOptions();
       initDynastyTags();
+      initMobileDrawer();
       console.log('UIModule.init() 完成');
     } catch (e) {
       console.error('UIModule.init() 失败:', e);
@@ -127,6 +128,93 @@ const UIModule = (() => {
         el.addEventListener('click', function () { removeDynasty(el.dataset.dynasty); });
       });
     }
+  }
+
+  // ============================================
+  // 移动端底部抽屉拖动
+  // ============================================
+  function initMobileDrawer() {
+    var drawer = els.sidePanel;
+    var handle = document.getElementById('drawerHandle');
+    if (!drawer || !handle) return;
+
+    // 非移动端不启用
+    if (window.innerWidth >= 768) return;
+
+    var startY = 0;
+    var startHeight = 0;
+    var isDragging = false;
+
+    function onPointerDown(e) {
+      isDragging = true;
+      startY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+      startHeight = drawer.offsetHeight;
+      drawer.style.transition = 'none';
+      e.preventDefault();
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+      var currentY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+      var deltaY = startY - currentY;
+      var newHeight = startHeight + deltaY;
+      var parent = drawer.parentElement;
+      var parentH = parent ? parent.offsetHeight : window.innerHeight;
+      var minH = 80;
+      var maxH = parentH * 0.92;
+      newHeight = Math.max(minH, Math.min(maxH, newHeight));
+      drawer.style.height = newHeight + 'px';
+    }
+
+    function onPointerUp() {
+      if (!isDragging) return;
+      isDragging = false;
+      drawer.style.transition = '';
+      var parent = drawer.parentElement;
+      var parentH = parent ? parent.offsetHeight : window.innerHeight;
+      var currentH = drawer.offsetHeight;
+      var threshold = parentH * 0.3;
+
+      if (currentH > threshold) {
+        drawer.classList.add('drawer-expanded');
+        drawer.style.height = (parentH * 0.85) + 'px';
+      } else {
+        drawer.classList.remove('drawer-expanded');
+        drawer.style.height = (parentH * 0.55) + 'px';
+      }
+    }
+
+    // Tap on handle to toggle
+    handle.addEventListener('click', function () {
+      if (isDragging) return;
+      if (drawer.classList.contains('drawer-expanded')) {
+        drawer.classList.remove('drawer-expanded');
+        var p = drawer.parentElement;
+        drawer.style.height = ((p ? p.offsetHeight : window.innerHeight) * 0.55) + 'px';
+      } else {
+        drawer.classList.add('drawer-expanded');
+        var p2 = drawer.parentElement;
+        drawer.style.height = ((p2 ? p2.offsetHeight : window.innerHeight) * 0.85) + 'px';
+      }
+    });
+
+    handle.addEventListener('touchstart', onPointerDown, { passive: false });
+    handle.addEventListener('touchmove', onPointerMove, { passive: false });
+    handle.addEventListener('touchend', onPointerUp);
+
+    // 鼠标 fallback
+    handle.addEventListener('mousedown', function (e) {
+      if (window.innerWidth >= 768) return;
+      onPointerDown(e);
+    });
+    document.addEventListener('mousemove', function (e) {
+      if (!isDragging) return;
+      onPointerMove(e);
+    });
+    document.addEventListener('mouseup', function () {
+      if (!isDragging) return;
+      onPointerUp();
+    });
   }
 
   function cacheElements() {
@@ -248,6 +336,21 @@ const UIModule = (() => {
     els.locationSearch.addEventListener('focus', () => {
       if (els.locationSearch.value.trim()) handleSearch();
     });
+
+    // 移动端搜索
+    var mobileSearch = document.getElementById('mobileLocationSearch');
+    if (mobileSearch) {
+      mobileSearch.addEventListener('input', handleMobileSearch);
+      mobileSearch.addEventListener('blur', function () {
+        setTimeout(function () {
+          var r = document.getElementById('mobileSearchResults');
+          if (r) r.classList.remove('show');
+        }, 200);
+      });
+      mobileSearch.addEventListener('focus', function () {
+        if (mobileSearch.value.trim()) handleMobileSearch();
+      });
+    }
 
     // 编辑面板关闭
     els.editPanelClose.addEventListener('click', exitEditMode);
@@ -1041,6 +1144,64 @@ const UIModule = (() => {
           if (onFlyTo) {
             onFlyTo(lat, lng);
           }
+        }
+      });
+    });
+  }
+
+  // ============================================
+  // 移动端搜索
+  // ============================================
+  function handleMobileSearch() {
+    var input = document.getElementById('mobileLocationSearch');
+    var resultsEl = document.getElementById('mobileSearchResults');
+    if (!input || !resultsEl) return;
+    var q = input.value.trim();
+    if (!q) {
+      resultsEl.classList.remove('show');
+      return;
+    }
+    searchAmap(q, function (amapResults) {
+      var results = amapResults.length > 0 ? amapResults : DataManager.searchLocations(q);
+      renderMobileSearchResults(results, resultsEl);
+    });
+  }
+
+  function renderMobileSearchResults(results, resultsEl) {
+    if (!results || results.length === 0) {
+      resultsEl.innerHTML = '<div class="search-result-item" style="color:#8C7A6A;">无匹配地点</div>';
+      resultsEl.classList.add('show');
+      return;
+    }
+    resultsEl.innerHTML = results.map(function (r) {
+      var label = r.county || r.name || '';
+      var province = r.province || '';
+      var lat = r.lat || '';
+      var lng = r.lng || '';
+      var source = r._source === 'amap' ? '高德' : '本地';
+      return '<div class="search-result-item" ' +
+        'data-lat="' + lat + '" data-lng="' + lng + '" ' +
+        'data-province="' + province + '" data-county="' + label + '" ' +
+        'style="display:flex;justify-content:space-between;align-items:center;">' +
+        '<span><strong>' + label + '</strong> <span class="sr-province">' + province + '</span></span>' +
+        '<span style="font-size:0.65rem;color:#B8A898;">' + source + '</span>' +
+        '</div>';
+    }).join('');
+    resultsEl.classList.add('show');
+
+    resultsEl.querySelectorAll('.search-result-item').forEach(function (el) {
+      el.addEventListener('mousedown', function (e) {
+        var lat = parseFloat(e.currentTarget.dataset.lat);
+        var lng = parseFloat(e.currentTarget.dataset.lng);
+        var province = e.currentTarget.dataset.province;
+        var county = e.currentTarget.dataset.county;
+        resultsEl.classList.remove('show');
+        document.getElementById('mobileLocationSearch').value = province + '·' + county;
+        if (!isNaN(lat) && !isNaN(lng)) {
+          if (currentFigure) {
+            addLocationToFigure(currentFigure, lat, lng, county, province);
+          }
+          if (onFlyTo) onFlyTo(lat, lng);
         }
       });
     });
